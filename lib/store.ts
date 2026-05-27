@@ -53,6 +53,26 @@ export type WeightEntry = { date: string; weight: number; note?: string };
 export type TaskState = { done: boolean; doneAt?: string; note?: string };
 export type TaskMap = Record<string, TaskState>;
 
+// Пользовательские задачи (поверх плана) и оверрайды дат для задач плана.
+export type CustomTask = {
+  id: string;            // ct_<uuid>
+  stepId: string;        // куда добавлена (S1, S1.1, и т.д.) или "inbox"
+  title: string;
+  start: string;         // YYYY-MM-DD (required)
+  due: string;           // YYYY-MM-DD (required)
+  outcome: string;       // required (SMART)
+  createdAt: string;
+};
+
+// Оверрайды для задач плана: позволяет менять даты/результат у "встроенных" задач.
+export type TaskOverride = {
+  start?: string;
+  due?: string;
+  outcome?: string;
+  hidden?: boolean;      // не удаляем плановую задачу — скрываем
+};
+export type TaskOverrides = Record<string, TaskOverride>;
+
 // ----- low-level localStorage -----
 
 function lsGet<T>(key: string, fallback: T): T {
@@ -126,6 +146,14 @@ export function useWeights() {
   return useLocal<WeightEntry[]>("reboot:weight", []);
 }
 
+export function useCustomTasks() {
+  return useLocal<CustomTask[]>("reboot:custom-tasks", []);
+}
+
+export function useTaskOverrides() {
+  return useLocal<TaskOverrides>("reboot:task-overrides", {});
+}
+
 export function useTheme() {
   return useLocal<string>("reboot:theme", "Из найма в продукт через Бали");
 }
@@ -141,6 +169,8 @@ export type Export = {
   insights: Insight[];
   weight: WeightEntry[];
   theme: string;
+  customTasks?: CustomTask[];
+  taskOverrides?: TaskOverrides;
 };
 
 export function exportAll(): Export {
@@ -153,6 +183,8 @@ export function exportAll(): Export {
     insights: lsGet("reboot:insights", []),
     weight: lsGet("reboot:weight", []),
     theme: lsGet("reboot:theme", ""),
+    customTasks: lsGet("reboot:custom-tasks", []),
+    taskOverrides: lsGet("reboot:task-overrides", {}),
   };
 }
 
@@ -164,4 +196,6 @@ export function importAll(data: Export) {
   lsSet("reboot:insights", data.insights ?? []);
   lsSet("reboot:weight", data.weight ?? []);
   if (data.theme) lsSet("reboot:theme", data.theme);
+  if (data.customTasks) lsSet("reboot:custom-tasks", data.customTasks);
+  if (data.taskOverrides) lsSet("reboot:task-overrides", data.taskOverrides);
 }

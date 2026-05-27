@@ -11,6 +11,8 @@ const KEYS = [
   "reboot:insights",
   "reboot:weight",
   "reboot:theme",
+  "reboot:custom-tasks",
+  "reboot:task-overrides",
 ];
 
 type Status = "off" | "loading" | "ok" | "error";

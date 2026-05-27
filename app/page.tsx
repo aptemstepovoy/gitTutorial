@@ -4,13 +4,15 @@ import { useMemo } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { PLAN_META, STEPS, targetWeight } from "@/lib/plan-data";
-import { useTasks, useWeights, useDailyReports, today } from "@/lib/store";
+import { useTasks, useWeights, useDailyReports, useCustomTasks, useTaskOverrides, today } from "@/lib/store";
 import { daysBetween, ruDateLong, fmtDate } from "@/lib/date";
 
 export default function TodayPage() {
   const [tasks, setTasks] = useTasks();
   const [weights] = useWeights();
   const [reports] = useDailyReports();
+  const [custom] = useCustomTasks();
+  const [overrides] = useTaskOverrides();
 
   const now = new Date();
   const startD = new Date(PLAN_META.start);
@@ -32,12 +34,21 @@ export default function TodayPage() {
   const hot: typeof overdue = [];
   STEPS.forEach((s) =>
     s.tasks.forEach((t) => {
-      if (!t.due) return;
+      const ov = overrides[t.id];
+      if (ov?.hidden) return;
+      const due = ov?.start && ov.due ? ov.due : t.due;
+      if (!due) return;
       if (tasks[t.id]?.done) return;
-      if (t.due < todayStr) overdue.push({ stepId: s.id, stepTitle: s.title, tid: t.id, title: t.title, due: t.due });
-      else if (t.due <= in14) hot.push({ stepId: s.id, stepTitle: s.title, tid: t.id, title: t.title, due: t.due });
+      if (due < todayStr) overdue.push({ stepId: s.id, stepTitle: s.title, tid: t.id, title: t.title, due });
+      else if (due <= in14) hot.push({ stepId: s.id, stepTitle: s.title, tid: t.id, title: t.title, due });
     })
   );
+  custom.forEach((c) => {
+    if (tasks[c.id]?.done) return;
+    const stepTitle = STEPS.find((s) => s.id === c.stepId)?.title ?? "Inbox";
+    if (c.due < todayStr) overdue.push({ stepId: c.stepId, stepTitle, tid: c.id, title: c.title, due: c.due });
+    else if (c.due <= in14) hot.push({ stepId: c.stepId, stepTitle, tid: c.id, title: c.title, due: c.due });
+  });
   overdue.sort((a, b) => a.due.localeCompare(b.due));
   hot.sort((a, b) => a.due.localeCompare(b.due));
 

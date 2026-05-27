@@ -1,18 +1,32 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { useInsights, type Insight } from "@/lib/store";
 
 const PRESETS = ["career", "blog", "ops", "ai", "health", "english", "relocation", "product", "anti-bs", "personal"];
 
-export default function InsightsPage() {
+function InsightsPageInner() {
   const [insights, setInsights] = useInsights();
   const [text, setText] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [important, setImportant] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const search = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (search.get("new") === "1") {
+      taRef.current?.focus();
+      taRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const url = new URL(window.location.href);
+      url.searchParams.delete("new");
+      router.replace(url.pathname + url.search);
+    }
+  }, [search, router]);
 
   const add = () => {
     const t = text.trim();
@@ -54,6 +68,7 @@ export default function InsightsPage() {
 
       <div className="card mb-4">
         <textarea
+          ref={taRef}
           rows={3}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -118,5 +133,13 @@ export default function InsightsPage() {
         ))}
       </div>
     </>
+  );
+}
+
+export default function InsightsPage() {
+  return (
+    <Suspense fallback={null}>
+      <InsightsPageInner />
+    </Suspense>
   );
 }
