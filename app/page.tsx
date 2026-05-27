@@ -249,11 +249,6 @@ export default function TodayPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Link href="/daily" className="btn-primary">Отчёт за день</Link>
-        <Link href="/insights" className="btn">+ Инсайт</Link>
-      </div>
-
       <TaskModal
         open={modalOpen}
         draft={draft}
