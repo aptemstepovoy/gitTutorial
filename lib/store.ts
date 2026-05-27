@@ -8,20 +8,25 @@ import { useEffect, useState, useCallback } from "react";
 export const STORE_VERSION = 1;
 
 export type DailyReport = {
-  date: string;          // YYYY-MM-DD
-  focus: number;         // 0..100 — субъективный фокус
-  energy: number;        // 1..5
-  mood: number;          // 1..5
-  done: string;          // что сделано (Markdown ок)
-  blockers: string;      // что мешало
-  topPriorityTomorrow: string;
-  // быстрые трекеры
+  date: string;            // YYYY-MM-DD
+  // основные поля по структуре /journal
+  done: string;            // что сделано сегодня — конкретные результаты, не процесс
+  focusTomorrow: string;   // фокусные задачи на завтра — 1-3 главных
+  state: string;           // состояние своими словами
+  insightsText: string;    // инсайты дня (могут автоматически создаться в /insights)
+  reflection: string;      // рефлексия дня
+
+  // быстрые трекеры — отдельная свёрнутая секция, питают /metrics
+  focus: number;           // 0..100
+  energy: number;          // 1..5
+  mood: number;            // 1..5
+  blockers: string;
   postsTg: number;
   postsX: number;
   reels: number;
   workout: boolean;
   englishMin: number;
-  outbound: number;      // отклики/коннекты по работе
+  outbound: number;
   weight?: number | null;
 };
 
@@ -46,6 +51,7 @@ export type Insight = {
   text: string;
   tags: string[];
   important: boolean;
+  voice?: boolean;
 };
 
 export type WeightEntry = { date: string; weight: number; note?: string };
