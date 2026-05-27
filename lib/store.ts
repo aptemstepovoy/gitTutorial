@@ -79,6 +79,9 @@ export function useLocal<T>(key: string, initial: T): [T, (v: T | ((p: T) => T))
   useEffect(() => {
     setVal(lsGet<T>(key, initial));
     setHydrated(true);
+    const onSync = () => setVal(lsGet<T>(key, initial));
+    window.addEventListener("reboot:sync-hydrated", onSync);
+    return () => window.removeEventListener("reboot:sync-hydrated", onSync);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
