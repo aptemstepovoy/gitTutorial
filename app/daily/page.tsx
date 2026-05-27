@@ -93,6 +93,51 @@ export default function DailyPage() {
       .sort((a, b) => b.date.localeCompare(a.date));
   }, [reports]);
 
+  const [copied, setCopied] = useState(false);
+
+  const buildReportText = (r: DailyReport): string => {
+    const [, m, d] = r.date.split("-");
+    const sections: { title: string; body: string }[] = [
+      { title: "Что сделано сегодня", body: r.done },
+      { title: "Фокус на завтра", body: r.focusTomorrow },
+      { title: "Состояние", body: r.state },
+      { title: "Инсайты", body: r.insightsText },
+      { title: "Рефлексия дня", body: r.reflection },
+    ];
+    const parts: string[] = [`Отчет ${d}.${m}`];
+    for (const s of sections) {
+      const body = s.body.trim();
+      if (!body) continue;
+      parts.push("", `${s.title}:`, body);
+    }
+    return parts.join("\n");
+  };
+
+  const copy = async () => {
+    const text = buildReportText(draft);
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback для старых браузеров и небезопасных контекстов
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      alert("Не удалось скопировать. Скопируй вручную.");
+    }
+  };
+
+  const hasAnyText = !!(draft.done || draft.focusTomorrow || draft.state || draft.insightsText || draft.reflection);
+
   return (
     <>
       <Header
@@ -165,7 +210,14 @@ export default function DailyPage() {
           </Field>
         </div>
 
-        <div className="flex justify-end mt-5">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-5">
+          <button
+            onClick={copy}
+            disabled={!hasAnyText}
+            className="btn px-6 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {copied ? "Скопировано ✓" : "Скопировать"}
+          </button>
           <button onClick={save} className="btn-primary px-6">
             {saved ? "Сохранено ✓" : "Сохранить отчёт"}
           </button>
@@ -242,7 +294,8 @@ export default function DailyPage() {
                     {r.state && <HistorySection title="Состояние" body={r.state} />}
                     {r.insightsText && <HistorySection title="Инсайты" body={r.insightsText} />}
                     {r.reflection && <HistorySection title="Рефлексия" body={r.reflection} />}
-                    <div className="flex justify-end pt-1">
+                    <div className="flex justify-end gap-2 pt-1">
+                      <CopyButton text={buildReportText(r)} />
                       <button onClick={() => setDate(r.date)} className="btn-ghost text-xs">Открыть для редактирования</button>
                     </div>
                   </div>
@@ -271,6 +324,36 @@ function HistorySection({ title, body }: { title: string; body: string }) {
       <div className="label kicker-amber mb-1">{title}</div>
       <div className="whitespace-pre-wrap text-ink/90">{body}</div>
     </div>
+  );
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      onClick={async () => {
+        try {
+          if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+          else {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+          }
+          setDone(true);
+          setTimeout(() => setDone(false), 1500);
+        } catch {
+          alert("Не удалось скопировать");
+        }
+      }}
+      className="btn-ghost text-xs"
+    >
+      {done ? "Скопировано ✓" : "Скопировать"}
+    </button>
   );
 }
 
