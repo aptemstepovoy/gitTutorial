@@ -23,7 +23,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ru">
       <body>
         <SyncProvider />
-        <div className="min-h-dvh max-w-3xl mx-auto px-4 pt-6 pb-32 safe-bottom">
+        <div
+          className="min-h-dvh max-w-3xl mx-auto px-4 pt-6"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 7.5rem)" }}
+        >
           {children}
         </div>
         <QuickFab />

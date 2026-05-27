@@ -27,7 +27,10 @@ export default function QuickFab() {
       {open && (
         <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
       )}
-      <div className="fixed right-4 bottom-[88px] z-50 flex flex-col items-end gap-2 safe-bottom">
+      <div
+        className="fixed right-4 z-50 flex flex-col items-end gap-2"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 5rem)" }}
+      >
         {open && (
           <div className="flex flex-col items-end gap-2 mb-1">
             {ACTIONS.map((a) => (
