@@ -13,6 +13,8 @@ const KEYS = [
   "reboot:theme",
   "reboot:custom-tasks",
   "reboot:task-overrides",
+  "reboot:habits",
+  "reboot:habit-log",
 ];
 
 type Status = "off" | "loading" | "ok" | "error";

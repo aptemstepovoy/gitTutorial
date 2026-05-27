@@ -56,6 +56,22 @@ export type Insight = {
 
 export type WeightEntry = { date: string; weight: number; note?: string };
 
+export type HabitFrequency = "daily" | "weekdays" | "weekends" | "weekly";
+
+export type Habit = {
+  id: string;
+  title: string;
+  icon: string;           // emoji
+  frequency: HabitFrequency;
+  daysOfWeek?: number[];  // для weekly: 0..6, где 0 = вс
+  createdAt: string;
+  archived?: boolean;
+  note?: string;
+};
+
+// completion log: { "YYYY-MM-DD": { habitId: true } }
+export type HabitLog = Record<string, Record<string, boolean>>;
+
 export type TaskState = { done: boolean; doneAt?: string; note?: string };
 export type TaskMap = Record<string, TaskState>;
 
@@ -160,6 +176,14 @@ export function useTaskOverrides() {
   return useLocal<TaskOverrides>("reboot:task-overrides", {});
 }
 
+export function useHabits() {
+  return useLocal<Habit[]>("reboot:habits", []);
+}
+
+export function useHabitLog() {
+  return useLocal<HabitLog>("reboot:habit-log", {});
+}
+
 export function useTheme() {
   return useLocal<string>("reboot:theme", "Из найма в продукт через Бали");
 }
@@ -177,6 +201,8 @@ export type Export = {
   theme: string;
   customTasks?: CustomTask[];
   taskOverrides?: TaskOverrides;
+  habits?: Habit[];
+  habitLog?: HabitLog;
 };
 
 export function exportAll(): Export {
@@ -191,6 +217,8 @@ export function exportAll(): Export {
     theme: lsGet("reboot:theme", ""),
     customTasks: lsGet("reboot:custom-tasks", []),
     taskOverrides: lsGet("reboot:task-overrides", {}),
+    habits: lsGet("reboot:habits", []),
+    habitLog: lsGet("reboot:habit-log", {}),
   };
 }
 
@@ -204,4 +232,6 @@ export function importAll(data: Export) {
   if (data.theme) lsSet("reboot:theme", data.theme);
   if (data.customTasks) lsSet("reboot:custom-tasks", data.customTasks);
   if (data.taskOverrides) lsSet("reboot:task-overrides", data.taskOverrides);
+  if (data.habits) lsSet("reboot:habits", data.habits);
+  if (data.habitLog) lsSet("reboot:habit-log", data.habitLog);
 }

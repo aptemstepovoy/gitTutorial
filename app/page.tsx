@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import TaskModal, { TaskDraft } from "@/components/TaskModal";
+import HabitsToday from "@/components/HabitsToday";
 import { PLAN_META, STEPS, targetWeight } from "@/lib/plan-data";
 import {
   useTasks,
@@ -199,6 +200,8 @@ export default function TodayPage() {
           <div className="mt-1">Нет горящих задач. Открой <Link className="text-accent underline" href="/plan">план</Link>.</div>
         </div>
       )}
+
+      <HabitsToday />
 
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="card-sm">

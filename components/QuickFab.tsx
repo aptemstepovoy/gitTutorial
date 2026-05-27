@@ -7,6 +7,7 @@ const ACTIONS = [
   { key: "report", label: "Отчёт за день", icon: "✎", href: "/daily" },
   { key: "insight", label: "Записать инсайт", icon: "✦", href: "/insights?new=1" },
   { key: "task", label: "Добавить задачу", icon: "＋", href: "/plan?new=1" },
+  { key: "habit", label: "Добавить привычку", icon: "✓", href: "/habits?new=1" },
 ];
 
 export default function QuickFab() {
